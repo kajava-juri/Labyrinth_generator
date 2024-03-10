@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,9 +10,14 @@ namespace Labyrinth_generator
     public class Prim
     {
         private List<Vertex> graph;
-        public Prim(List<Vertex> graph)
+        private List<Tuple<int, int>> vertexOrder = new List<Tuple<int, int>>();
+        private int width;
+        private int height;
+        public Prim(List<Vertex> graph, int width, int height)
         {
             this.graph = graph;
+            this.width = width;
+            this.height = height;
         }
 
         public void Run()
@@ -40,7 +46,7 @@ namespace Labyrinth_generator
                 }
 
                 Console.WriteLine($"Next vertex {nextVertex.GetLabel()}");
-                
+                vertexOrder.Add(nextVertex.GetCoordinates());
                 nextMinimum.SetIncluded(true);
                 nextVertex.SetVisited(true);
             }
@@ -81,9 +87,32 @@ namespace Labyrinth_generator
         public string MinimumSpanningTreeToString()
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            System.Text.StringBuilder tocsv = new System.Text.StringBuilder();
             foreach (Vertex vertex in graph)
             {
-                sb.Append(vertex.IncludedToString());
+                (string,string) formattedStrings = vertex.IncludedToString();
+                sb.Append(formattedStrings.Item1);
+                tocsv.Append(formattedStrings.Item2);
+
+
+
+            }
+            // Write values to the file
+            using (StreamWriter writer = new StreamWriter("adjaceny.csv"))
+            {
+                writer.WriteLine($"{width},{height}");
+                writer.WriteLine(tocsv.ToString());
+
+            }
+            // Write values to the file
+            using (StreamWriter writer = new StreamWriter("output.csv"))
+            {
+           
+                foreach (Tuple<int, int> coord in vertexOrder)
+                {
+                    writer.WriteLine($"x={coord.Item1},y={coord.Item2}");
+                }
+
             }
             return sb.ToString();
         }

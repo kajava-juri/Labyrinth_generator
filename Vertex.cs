@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Labyrinth_generator
 {
@@ -6,11 +8,23 @@ namespace Labyrinth_generator
     {
         private string label = null;
         private Dictionary<Vertex, Edge> edges = new Dictionary<Vertex, Edge>();
+        private Tuple<int, int> coordinates;
         private bool isVisited = false;
+
 
         public Vertex(string label)
         {
             this.label = label;
+        }
+
+        public void SetCoordinates(int x, int y)
+        {
+            coordinates = Tuple.Create(x, y);
+        }
+
+        public Tuple<int, int> GetCoordinates()
+        {
+            return coordinates;
         }
 
         public string GetLabel()
@@ -93,9 +107,10 @@ namespace Labyrinth_generator
             return sb.ToString();
         }
 
-        public string IncludedToString()
+        public (string, string) IncludedToString()
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            System.Text.StringBuilder tocsv = new System.Text.StringBuilder();
             if (IsVisited())
             {
                 foreach (KeyValuePair<Vertex, Edge> pair in edges)
@@ -111,11 +126,15 @@ namespace Labyrinth_generator
                             sb.Append(pair.Key.GetLabel());
                             sb.Append("\n");
                             pair.Value.SetPrinted(true);
+
+                            tocsv.Append($"x{coordinates.Item1}y{coordinates.Item2};x{pair.Key.GetCoordinates().Item1}y{pair.Key.GetCoordinates().Item2}\n");
+
+
                         }
                     }
                 }
             }
-            return sb.ToString();
+            return (sb.ToString(),tocsv.ToString());
         }
     }
 }
